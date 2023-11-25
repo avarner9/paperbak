@@ -34,11 +34,11 @@ int fnsplit(const char * path, char * drive, char * dir, char * name, char * ext
     size_t dir_len = 0;
     if (strchr(path, '/') != NULL)
     {
-        dir_len = strrchr(path, '/') - path;
+        dir_len = strrchr(path, '/') - path + 1;
     }
     if (strchr(path, '/') != NULL)
     {
-        size_t dir_len_2 = strrchr(path, '/') - path;
+        size_t dir_len_2 = strrchr(path, '/') - path + 1;
         if (dir_len_2 > dir_len)
         {
             dir_len = dir_len_2;
@@ -92,6 +92,14 @@ int fnsplit(const char * path, char * drive, char * dir, char * name, char * ext
 }
 void fnmerge(char * path, const char * drive, const char * dir, const char * name, const char * ext)
 {
+    if (drive == NULL)
+        drive = "";
+    if (dir == NULL)
+        dir = "";
+    if (name == NULL)
+        name = "";
+    if (ext == NULL)
+        ext = "";
     snprintf(path, MAXPATH, "%s%s%s%s", drive, dir, name, ext);
 }
 
