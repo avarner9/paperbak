@@ -12,16 +12,28 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "BZLIB\bzlib.h"
+#include <windows.h>
+#include <algorithm>
+#include "BZLIB/bzlib.h"
+
+
+#if __GNUC__ > 0
+#define UNUSED __attribute__((unused))
+#else
+#define UNUSED
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+//Reimplementations of proprietary Embarcadero Rad Studio language extensions///
+
+#include "fnsplitmerge.h"
+
+//from <algorithm> . Should be close enough.
+using std::min;
+using std::max;
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////// GENERAL DEFINITIONS //////////////////////////////
-
-#ifdef MAINPROG
-  #define unique                       // Define MAINPROG in single C unit!
-#else
-  #define unique extern
-#endif
 
 #define VERSIONHI      1               // Major version
 #define VERSIONLO      10              // Minor version
@@ -39,8 +51,8 @@ typedef unsigned short ushort;
 typedef unsigned int   uint;
 typedef unsigned long  ulong;
 
-unique HINSTANCE hinst;                // Application's instance
-unique HWND      hwmain;               // Handle of the main window
+extern HINSTANCE hinst;                // Application's instance
+extern HWND      hwmain;               // Handle of the main window
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,10 +75,6 @@ typedef struct t_data {                // Block on paper
   uchar          ecc[32];              // Reed-Solomon's error correction code
 } t_data;
 
-#if sizeof(t_data)!=128
-  #error t_data: Invalid data alignment
-#endif
-
 #define PBM_COMPRESSED 0x01            // Paper backup is compressed
 #define PBM_ENCRYPTED  0x02            // Paper backup is encrypted
 
@@ -85,9 +93,6 @@ typedef struct t_superdata {           // Identification block on paper
   uchar          ecc[32];              // Reed-Solomon's error correction code
 } t_superdata;
 
-#if sizeof(t_superdata)!=sizeof(t_data)
-  #error t_superdata: Invalid data alignment
-#endif
 
 typedef struct t_block {               // Block in memory
   ulong          addr;                 // Offset of the block
@@ -179,9 +184,9 @@ typedef struct t_printdata {           // Print control structure
 } t_printdata;
 
 
-unique PAGESETUPDLG pagesetup;         // Structure with printer page settings
-unique int       resx,resy;            // Printer resolution, dpi (may be 0!)
-unique t_printdata printdata;          // Print control structure
+extern PAGESETUPDLG pagesetup;         // Structure with printer page settings
+extern int       resx,resy;            // Printer resolution, dpi (may be 0!)
+extern t_printdata printdata;          // Print control structure
 
 void   Initializeprintsettings(void);
 void   Closeprintsettings(void);
@@ -237,8 +242,8 @@ typedef struct t_procdata {            // Descriptor of processed data
   int            nrestored;            // Page statistics: restored bytes
 } t_procdata;
 
-unique int       orientation;          // Orientation of bitmap (-1: unknown)
-unique t_procdata procdata;            // Descriptor of processed data
+extern int       orientation;          // Orientation of bitmap (-1: unknown)
+extern t_procdata procdata;            // Descriptor of processed data
 
 void   Nextdataprocessingstep(t_procdata *pdata);
 void   Freeprocdata(t_procdata *pdata);
@@ -282,7 +287,7 @@ typedef struct t_fproc {               // Descriptor of processed file
   int            rempages[8];          // 1-based list of remaining pages
 } t_fproc;
 
-unique t_fproc   fproc[NFILE];         // Processed files
+extern t_fproc   fproc[NFILE];         // Processed files
 
 void   Closefproc(int slot);
 int    Startnextpage(t_superblock *superblock);
@@ -294,7 +299,7 @@ int    Saverestoredfile(int slot,int force);
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// SCANNER ////////////////////////////////////
 
-unique int       twainstate;           // According to TWAIN specifications
+extern int       twainstate;           // According to TWAIN specifications
 
 int    Decodebitmap(char *path);
 int    SelectTWAINsource(void);
@@ -325,10 +330,10 @@ void   CloseTWAINlibrary(void);
 #define DISP_QUALITY   0               // Display quality map
 #define DISP_BLOCK     1               // Display block image
 
-unique HBRUSH    graybrush;            // Button face brush (usually gray)
+extern HBRUSH    graybrush;            // Button face brush (usually gray)
 
-void   Reporterror(char *text);
-void   Message(char *text,int percent);
+void   Reporterror(const char *text);
+void   Message(const char *text,int percent);
 
 void   Updatebuttons(void);
 void   Setdisplaymode(int mode);
@@ -359,29 +364,29 @@ int    Getfilefromqueue(char *path);
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// USER INTERFACE ////////////////////////////////
 
-unique char      infile[MAXPATH];      // Last selected file to read
-unique char      outbmp[MAXPATH];      // Last selected bitmap to save
-unique char      inbmp[MAXPATH];       // Last selected bitmap to read
-unique char      outfile[MAXPATH];     // Last selected data file to save
+extern char      infile[MAXPATH];      // Last selected file to read
+extern char      outbmp[MAXPATH];      // Last selected bitmap to save
+extern char      inbmp[MAXPATH];       // Last selected bitmap to read
+extern char      outfile[MAXPATH];     // Last selected data file to save
 
-unique char      password[PASSLEN];    // Encryption password
+extern char      password[PASSLEN];    // Encryption password
 
-unique int       dpi;                  // Dot raster, dots per inch
-unique int       dotpercent;           // Dot size, percent of dpi
-unique int       compression;          // 0: none, 1: fast, 2: maximal
-unique int       redundancy;           // Redundancy (NGROUPMIN..NGROUPMAX)
-unique int       printheader;          // Print header and footer
-unique int       printborder;          // Border around bitmap
-unique int       autosave;             // Autosave completed files
-unique int       bestquality;          // Determine best quality
-unique int       encryption;           // Encrypt data before printing
-unique int       opentext;             // Enter passwords in open text
+extern int       dpi;                  // Dot raster, dots per inch
+extern int       dotpercent;           // Dot size, percent of dpi
+extern int       compression;          // 0: none, 1: fast, 2: maximal
+extern int       redundancy;           // Redundancy (NGROUPMIN..NGROUPMAX)
+extern int       printheader;          // Print header and footer
+extern int       printborder;          // Border around bitmap
+extern int       autosave;             // Autosave completed files
+extern int       bestquality;          // Determine best quality
+extern int       encryption;           // Encrypt data before printing
+extern int       opentext;             // Enter passwords in open text
 
-unique int       marginunits;          // 0:undef, 1:inches, 2:millimeters
-unique int       marginleft;           // Left printer page margin
-unique int       marginright;          // Right printer page margin
-unique int       margintop;            // Top printer page margin
-unique int       marginbottom;         // Bottom printer page margin
+extern int       marginunits;          // 0:undef, 1:inches, 2:millimeters
+extern int       marginleft;           // Left printer page margin
+extern int       marginright;          // Right printer page margin
+extern int       margintop;            // Top printer page margin
+extern int       marginbottom;         // Bottom printer page margin
 
 void   Options(void);
 int    Confirmpassword();

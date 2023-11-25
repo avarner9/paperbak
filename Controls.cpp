@@ -34,7 +34,6 @@
 #include <direct.h>
 #include <math.h>
 #include "twain.h"
-#pragma hdrstop
 
 #include "paperbak.h"
 #include "resource.h"
@@ -316,7 +315,7 @@ HWND Createprogressbar(RECT *rc) {
 };
 
 // Displays error message.
-void Reporterror(char *text) {
+void Reporterror(const char *text) {
   if (hprogress==NULL || text==NULL) return;
   strncpy(message,text,TEXTLEN-1);
   message[TEXTLEN-1]='\0';
@@ -325,7 +324,7 @@ void Reporterror(char *text) {
 };
 
 // Displays progress. Call with percent=0 to display plain message.
-void Message(char *text,int percent) {
+void Message(const char *text,int percent) {
   if (hprogress==NULL || text==NULL) return;
   if (percent==showpercent && strncmp(message,text,TEXTLEN-1)==0)
     return;                            // Unchanged appearance
@@ -651,9 +650,11 @@ HWND Createdisplay(RECT *rc) {
   // Add tabs for quality map and block view.
   memset(&titem,0,sizeof(titem));
   titem.mask=TCIF_TEXT;
-  titem.pszText="Quality map";
+  static char str_quality_map[] = "Quality map";
+  titem.pszText=str_quality_map;
   SendMessage(hdatatab,TCM_INSERTITEM,DISP_QUALITY,(LPARAM)&titem);
-  titem.pszText="Blocks";
+  static char str_blocks[] = "Blocks";
+  titem.pszText=str_blocks;
   SendMessage(hdatatab,TCM_INSERTITEM,DISP_BLOCK,(LPARAM)&titem);
   // Create brushes to display quality map. 0 errors: green; 16 errors (maximum
   // allowed by implemented version of ECC): red; unrecoverable blocks: black.
@@ -802,7 +803,7 @@ void Displayblockimage(t_procdata *pdata,int posx,int posy,
   int answer,t_data *result) {
   int i,j,x,x0,x1,y,y0,y1,n;
   int bufx,bufy,bufdx,bufdy,scale,orientation;
-  ulong baddots[32],u;
+  ulong baddots[32],u=0;
   float xpeak,xstep,ypeak,ystep,fscale,offsetx,offsety;
   char s[128];
   uchar *buf,*pbuf,*pblock;
@@ -988,8 +989,10 @@ int Changeblockselection(WPARAM wp) {
       CheckRadioButton(hblocksel,BSEL_GRID,BSEL_NONE,blockdotmode);
       break;
     default: return 1; };              // Keystroke is not processed
-  if (x>=mapnx) x=mapnx-1; if (x<0) x=0;
-  if (y>=mapny) y=mapny-1; if (y<0) y=0; 
+  if (x>=mapnx) x=mapnx-1;
+  if (x<0) x=0;
+  if (y>=mapny) y=mapny-1;
+  if (y<0) y=0;
   if (wp==VK_SPACE || x!=blockselx || y!=blocksely) {
     answer=Decodeblock(&procdata,x,y,&result);
     Displayblockimage(&procdata,x,y,answer,&result);
@@ -1297,7 +1300,7 @@ void Updatefileinfo(int slot,t_fproc *fproc) {
     memcpy(s+1,fproc->name,64); s[0]=' '; s[65]='\0';
     SetWindowText(hdataname,s);
     // Original data size.
-    sprintf(s," %u bytes",fproc->origsize);
+    sprintf(s," %u bytes",(unsigned int)fproc->origsize);
     SetWindowText(horigsize,s);
     // Date of last modification.
     Filetimetotext(&fproc->modified,s+1,TEXTLEN-1); s[0]=' ';
@@ -1312,7 +1315,7 @@ void Updatefileinfo(int slot,t_fproc *fproc) {
     sprintf(s," %u",fproc->badblocks);
     SetWindowText(hbadcount,s);
     // Number of corrected bytes.
-    sprintf(s," %u bytes",fproc->restoredbytes);
+    sprintf(s," %u bytes",(unsigned int)fproc->restoredbytes);
     SetWindowText(hcorrcount,s);
     // List of pages to process (up to 7).
     n=0; s[0]='\0';

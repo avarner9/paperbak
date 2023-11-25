@@ -34,7 +34,6 @@
 #include <direct.h>
 #include <math.h>
 #include "twain.h"
-#pragma hdrstop
 
 #include "paperbak.h"
 #include "resource.h"

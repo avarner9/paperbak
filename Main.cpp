@@ -34,9 +34,7 @@
 #include <direct.h>
 #include <math.h>
 #include "twain.h"
-#pragma hdrstop
 
-#define MAINPROG
 #include "paperbak.h"
 #include "resource.h"
 
@@ -68,10 +66,42 @@
 // TODO: manual restoration of damaged blocks.
 
 
+HINSTANCE hinst;                // Application's instance
+HWND      hwmain;               // Handle of the main window
+PAGESETUPDLG pagesetup;         // Structure with printer page settings
+int       resx,resy;            // Printer resolution, dpi (may be 0!)
+t_printdata printdata;          // Print control structure
+int       orientation;          // Orientation of bitmap (-1: unknown)
+t_procdata procdata;            // Descriptor of processed data
+t_fproc   fproc[NFILE];         // Processed files
+int       twainstate;           // According to TWAIN specifications
+HBRUSH    graybrush;            // Button face brush (usually gray)
+char      infile[MAXPATH];      // Last selected file to read
+char      outbmp[MAXPATH];      // Last selected bitmap to save
+char      inbmp[MAXPATH];       // Last selected bitmap to read
+char      outfile[MAXPATH];     // Last selected data file to save
+char      password[PASSLEN];    // Encryption password
+int       dpi;                  // Dot raster, dots per inch
+int       dotpercent;           // Dot size, percent of dpi
+int       compression;          // 0: none, 1: fast, 2: maximal
+int       redundancy;           // Redundancy (NGROUPMIN..NGROUPMAX)
+int       printheader;          // Print header and footer
+int       printborder;          // Border around bitmap
+int       autosave;             // Autosave completed files
+int       bestquality;          // Determine best quality
+int       encryption;           // Encrypt data before printing
+int       opentext;             // Enter passwords in open text
+int       marginunits;          // 0:undef, 1:inches, 2:millimeters
+int       marginleft;           // Left printer page margin
+int       marginright;          // Right printer page margin
+int       margintop;            // Top printer page margin
+int       marginbottom;         // Bottom printer page margin
+
+
 HMENU            hmenu;                // Handle of main menu
 
 // Window function of About dialog box.
-int CALLBACK Aboutdlgproc(HWND hw,UINT msg,WPARAM wp,LPARAM lp) {
+int CALLBACK Aboutdlgproc(HWND hw,UINT msg,WPARAM wp,UNUSED LPARAM lp) {
   char s[1024];
   switch (msg) {
     case WM_INITDIALOG:
@@ -109,7 +139,7 @@ void About(void) {
 };
 
 // Window function of Options dialog box.
-int CALLBACK Optionsdlgproc(HWND hw,UINT msg,WPARAM wp,LPARAM lp) {
+int CALLBACK Optionsdlgproc(HWND hw,UINT msg,WPARAM wp,UNUSED LPARAM lp) {
   int i,sel,maxres,dpiset,dotset,comprset,redset;
   char s[TEXTLEN];
   static int resfactor[8] = { 2, 3, 4, 5, 6, 8, 10, 15 };
@@ -229,7 +259,7 @@ void Options(void) {
 };
 
 // Window function of Confirm password dialog box.
-int CALLBACK Confirmdlgproc(HWND hw,UINT msg,WPARAM wp,LPARAM lp) {
+int CALLBACK Confirmdlgproc(HWND hw,UINT msg,WPARAM wp,UNUSED LPARAM lp) {
   int i;
   char passcopy[PASSLEN];
   switch (msg) {
@@ -286,7 +316,7 @@ int Confirmpassword(void) {
 };
 
 // Window function of Password dialog box.
-int CALLBACK Passworddlgproc(HWND hw,UINT msg,WPARAM wp,LPARAM lp) {
+int CALLBACK Passworddlgproc(HWND hw,UINT msg,WPARAM wp,UNUSED LPARAM lp) {
   int i;
   char paserase[PASSLEN];
   switch (msg) {
@@ -329,10 +359,9 @@ int Getpassword(void) {
 };
 
 // Windows function of main PaperBack window.
-LRESULT CALLBACK Mainwp(HWND hw,UINT msg,WPARAM wp,LPARAM lp) {
+LRESULT CALLBACK Mainwp(HWND hw,UINT msg,WPARAM wp,UNUSED LPARAM lp) {
   int i,n;
   char path[MAXPATH],ext[MAXEXT];
-  HDC dc;
   PAINTSTRUCT ps;
   switch (msg) {
     case WM_CREATE:
@@ -398,7 +427,7 @@ LRESULT CALLBACK Mainwp(HWND hw,UINT msg,WPARAM wp,LPARAM lp) {
       DragFinish((HDROP)wp);
       break;
     case WM_PAINT:
-      dc=BeginPaint(hw,&ps);
+      BeginPaint(hw,&ps);
       // Hey, do we have anything to do here? Background is already OK.
       EndPaint(hw,&ps);
       break;
@@ -408,7 +437,7 @@ LRESULT CALLBACK Mainwp(HWND hw,UINT msg,WPARAM wp,LPARAM lp) {
 };
 
 // Main PaperBack program.
-int PASCAL WinMain(HINSTANCE hi,HINSTANCE hprev,LPSTR cmdline,int show) {
+int PASCAL WinMain(HINSTANCE hi,UNUSED HINSTANCE hprev,UNUSED LPSTR cmdline,UNUSED int show) {
   int dx,dy,isbitmap;
   char path[MAXPATH],drv[MAXDRIVE],dir[MAXDIR],fil[MAXFILE];
   char s[TEXTLEN],inifile[MAXPATH];
@@ -555,13 +584,13 @@ int PASCAL WinMain(HINSTANCE hi,HINSTANCE hprev,LPSTR cmdline,int show) {
   if (marginunits) {
     sprintf(s,"%i",marginunits);
       WritePrivateProfileString("Settings","Margin units",s,inifile);
-    sprintf(s,"%i",pagesetup.rtMargin.left);
+    sprintf(s,"%i",(int)pagesetup.rtMargin.left);
       WritePrivateProfileString("Settings","Margin left",s,inifile);
-    sprintf(s,"%i",pagesetup.rtMargin.right);
+    sprintf(s,"%i",(int)pagesetup.rtMargin.right);
       WritePrivateProfileString("Settings","Margin right",s,inifile);
-    sprintf(s,"%i",pagesetup.rtMargin.top);
+    sprintf(s,"%i",(int)pagesetup.rtMargin.top);
       WritePrivateProfileString("Settings","Margin top",s,inifile);
-    sprintf(s,"%i",pagesetup.rtMargin.bottom);
+    sprintf(s,"%i",(int)pagesetup.rtMargin.bottom);
       WritePrivateProfileString("Settings","Margin bottom",s,inifile);
     ;
   };

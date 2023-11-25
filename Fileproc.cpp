@@ -36,7 +36,6 @@
 #include "twain.h"
 #include "CRYPTO/aes.h"
 #include "CRYPTO/pwd2key.h"
-#pragma hdrstop
 
 #include "paperbak.h"
 #include "resource.h"
@@ -342,7 +341,7 @@ int Saverestoredfile(int slot,int force) {
     // Unpack data.
     length=pf->origsize;
     success=BZ2_bzBuffToBuffDecompress((char *)bufout,(uint *)&length,
-      pf->data,pf->datasize,0,0);
+      (char *)pf->data,pf->datasize,0,0);
     if (success!=BZ_OK) {
       GlobalFree((HGLOBAL)bufout);
       Reporterror("Unable to unpack data");

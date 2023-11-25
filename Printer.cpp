@@ -36,7 +36,6 @@
 #include "twain.h"
 #include "CRYPTO/aes.h"
 #include "CRYPTO/pwd2key.h"
-#pragma hdrstop
 
 #include "paperbak.h"
 #include "resource.h"
@@ -929,7 +928,7 @@ static void Printnextpage(t_printdata *print) {
       // Print title at the top of the page.
       Filetimetotext(&print->modified,ts,sizeof(ts));
       n=sprintf(s,"%.64s [%s, %i bytes] - page %i of %i",
-        print->superdata.name,ts,print->origsize,print->frompage+1,npages);
+        print->superdata.name,ts,(int)print->origsize,print->frompage+1,npages);
       SelectObject(print->dc,print->hfont6);
       TextOut(print->dc,print->borderleft+width/2,print->bordertop,s,n);
       // Print info at the bottom of the page.
@@ -965,7 +964,7 @@ static void Printnextpage(t_printdata *print) {
     // Create and save bitmap file header.
     success=1;
     n=sizeof(BITMAPINFOHEADER)+256*sizeof(RGBQUAD);
-    bmfh.bfType='BM';
+    bmfh.bfType=('B'+256*'M');
     bmfh.bfSize=sizeof(bmfh)+n+width*height;
     bmfh.bfReserved1=bmfh.bfReserved2=0;
     bmfh.bfOffBits=sizeof(bmfh)+n;

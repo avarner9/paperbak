@@ -34,7 +34,6 @@
 #include <direct.h>
 #include <math.h>
 #include "twain.h"
-#pragma hdrstop
 
 #include "paperbak.h"
 #include "resource.h"
@@ -391,7 +390,7 @@ static void Getxangle(t_procdata *pdata) {
   int h[NHYST],nh[NHYST],ystep;
   uchar *data,*pd;
   float weight,xpeak,xstep;
-  float maxweight,bestxpeak,bestxangle,bestxstep;
+  float maxweight=0,bestxpeak=0,bestxangle=0,bestxstep=0;
   // Get frequently used variables.
   sizex=pdata->sizex;
   data=pdata->data;
@@ -455,7 +454,7 @@ static void Getyangle(t_procdata *pdata) {
   int h[NHYST],nh[NHYST],xstep;
   uchar *data,*pd;
   float weight,ypeak,ystep;
-  float maxweight,bestypeak,bestyangle,bestystep;
+  float maxweight=0,bestypeak=0,bestyangle=0,bestystep=0;
   // Get frequently used variables.
   sizex=pdata->sizex;
   sizey=pdata->sizey;
@@ -606,7 +605,7 @@ static void Preparefordecoding(t_procdata *pdata) {
 // 0 to 16 if block is correctly decoded and 17 if block is unrecoverable.
 int Decodeblock(t_procdata *pdata,int posx,int posy,t_data *result) {
   int i,j,x,y,x0,y0,dx,dy,sizex,sizey,*bufx,*bufy;
-  int c,cmin,cmax,dotsize,shift,shiftmax,sum,answer,bestanswer;
+  int c,cmin,cmax,dotsize,shift,shiftmax=0,sum,answer=0,bestanswer;
   float xangle,yangle,xbmp,ybmp,xres,yres,sharpfactor;
   float xpeak,xstep,ypeak,ystep,halfdot;
   float sy,syy,disp,dispmin,dispmax;

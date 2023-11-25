@@ -34,7 +34,6 @@
 #include <direct.h>
 #include <math.h>
 #include "twain.h"
-#pragma hdrstop
 
 #include "paperbak.h"
 #include "resource.h"
@@ -147,7 +146,7 @@ int Decodebitmap(char *path) {
     fclose(f); return -1; };
   pbfh=(BITMAPFILEHEADER *)buf;
   pbih=(BITMAPINFOHEADER *)(buf+sizeof(BITMAPFILEHEADER));
-  if (pbfh->bfType!='BM' ||
+  if (pbfh->bfType!=('B'+256*'M') ||
     pbih->biSize!=sizeof(BITMAPINFOHEADER) || pbih->biPlanes!=1 ||
     (pbih->biBitCount!=8 && pbih->biBitCount!=24) ||
     (pbih->biBitCount==24 && pbih->biClrUsed!=0) ||
