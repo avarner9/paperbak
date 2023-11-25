@@ -5,7 +5,7 @@ CXX_OBJECTS=Main.o Ecc.o Crc16.o Printer.o Decoder.o Fileproc.o Controls.o Scann
 RES_OBJECTS=PaperBak.o
 
 paperbak.exe : $(CXX_OBJECTS) $(RES_OBJECTS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ /usr/i686-w64-mingw32/lib/libcomdlg32.a /usr/i686-w64-mingw32/lib/libgdi32.a /usr/i686-w64-mingw32/lib/libwinspool.a
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ /usr/i686-w64-mingw32/lib/libcomdlg32.a /usr/i686-w64-mingw32/lib/libgdi32.a /usr/i686-w64-mingw32/lib/libwinspool.a /usr/i686-w64-mingw32/lib/libcomctl32.a
 
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $^
