@@ -4,6 +4,8 @@ CXXFLAGS=-Wall -Wextra -O3 -g
 CC=i686-w64-mingw32-gcc-win32
 CFLAGS=-Wall -O3 -g
 
+LDFLAGS=-static-libgcc -static-libstdc++
+
 CXX_OBJECTS=Main.o Ecc.o Crc16.o Printer.o Decoder.o Fileproc.o Controls.o Scanner.o Service.o fnsplitmerge.o
 #RES_OBJECTS=PaperBak.o Options.o Resource.o
 RES_OBJECTS=PaperBak.o
