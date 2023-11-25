@@ -1,7 +1,7 @@
 CXX=i686-w64-mingw32-g++-win32
 CXXFLAGS=-Wall -Wextra -O3 -g
 
-CXX_OBJECTS=Main.o Ecc.o Crc16.o Printer.o Decoder.o Fileproc.o Controls.o Scanner.o Service.o
+CXX_OBJECTS=Main.o Ecc.o Crc16.o Printer.o Decoder.o Fileproc.o Controls.o Scanner.o Service.o fnsplitmerge.o
 RES_OBJECTS=PaperBak.o
 
 paperbak.exe : $(CXX_OBJECTS) $(RES_OBJECTS)
@@ -15,4 +15,3 @@ paperbak.exe : $(CXX_OBJECTS) $(RES_OBJECTS)
 
 %.o : %.res
 	i686-w64-mingw32-windres -i $< -o $@
-
