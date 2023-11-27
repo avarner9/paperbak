@@ -8,6 +8,8 @@ produced by Borland Resource Workshop
 
 *****************************************************************************/
 
+#include <winuser.h>
+
 #define DIALOG_1	1
 #define IDC_COMBOBOX1	101
 #define IDC_COMBOBOX2	106
